@@ -9,7 +9,7 @@ public class KeyboardDemo {
 
 //		engine.loadAndPlayKeysFromFile("src/proyecto/alegria.txt");
 		
-		engine.loadAndPlayKeysFromFile("src/proyecto/Teardrop.txt");
+		engine.loadAndPlayKeysFromFile("Teardrop.txt");
 		
 
 //		engine.setBpm(110);
