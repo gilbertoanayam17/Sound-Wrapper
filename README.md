@@ -2,142 +2,142 @@
 
 # 🎹 Sound-Wrapper
 
-**Un sintetizador de teclado escrito en Java puro: genera ondas sonoras desde cero y toca partituras escritas en texto plano.**
+**A keyboard synthesizer written in pure Java: it generates sound waves from scratch and plays scores written in plain text.**
 
 ![Java](https://img.shields.io/badge/Java-8%2B-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
 ![javax.sound](https://img.shields.io/badge/javax.sound.sampled-audio-4B8BBE?style=for-the-badge)
-![Sin dependencias](https://img.shields.io/badge/dependencias-0-success?style=for-the-badge)
+![No dependencies](https://img.shields.io/badge/dependencies-0-success?style=for-the-badge)
 
 </div>
 
 ---
 
-## ✨ ¿Qué es?
+## ✨ What is it?
 
-Sound-Wrapper envuelve la API de bajo nivel `javax.sound.sampled` en una interfaz musical sencilla. En lugar de pensar en buffers y muestras, piensas en **notas, octavas, figuras rítmicas y BPM**.
+Sound-Wrapper wraps the low-level `javax.sound.sampled` API in a simple musical interface. Instead of thinking in buffers and samples, you think in **notes, octaves, note values and BPM**.
 
-Cada nota se sintetiza muestra por muestra a 44.1 kHz. No hay archivos de audio pregrabados: todo el sonido sale de funciones matemáticas.
+Every note is synthesized sample by sample at 44.1 kHz. There are no pre-recorded audio files: all the sound comes from math functions.
 
-- 🎼 **Partituras en `.txt`**: escribe una canción línea por línea y el motor la interpreta.
-- 🎛️ **Presets de teclado**: cada preset tiene su propia forma de onda y volumen.
-- ⏱️ **Tempo real**: las duraciones se calculan a partir del BPM (redonda, blanca, negra, corchea y semicorchea).
-- 🔇 **Transiciones suaves**: una envolvente de ataque y liberación de 20 ms evita los "clics" entre notas.
-- 🧩 **Extensible**: agregar un timbre nuevo es escribir una lambda.
+- 🎼 **`.txt` scores**: write a song line by line and the engine plays it.
+- 🎛️ **Keyboard presets**: each preset has its own waveform and volume.
+- ⏱️ **Real tempo**: durations are computed from the BPM (whole, half, quarter, eighth and sixteenth notes).
+- 🔇 **Smooth transitions**: a 20 ms attack and release envelope prevents clicks between notes.
+- 🧩 **Extensible**: adding a new tone is just writing a lambda.
 
 ---
 
-## 🚀 Inicio rápido
+## 🚀 Quick start
 
-### Requisitos
+### Requirements
 
-- **JDK 8 o superior**
-- Una salida de audio disponible
+- **JDK 8 or newer**
+- An available audio output
 
-### Compilar y ejecutar
+### Build and run
 
 ```bash
 git clone https://github.com/gilbertoanayam17/Sound-Wrapper.git
 cd Sound-Wrapper
 
 javac -d out *.java
-java -cp out proyecto.KeyboardDemo
+java -cp out project.KeyboardDemo
 ```
 
-¿Solo quieres comprobar que tu equipo suena? [TestSound.java](TestSound.java) toca un La (440 Hz) durante un segundo:
+Just want to check that your machine makes sound? [TestSound.java](TestSound.java) plays an A (440 Hz) for one second:
 
 ```bash
-java -cp out proyecto.TestSound
+java -cp out project.TestSound
 ```
 
 ---
 
-## 🎼 Escribe tu propia canción
+## 🎼 Write your own song
 
-Las partituras son archivos de texto con una instrucción por línea:
+Scores are text files with one instruction per line:
 
 ```properties
-# Las líneas que empiezan con # son comentarios
+# Lines starting with # are comments
 
-# Configuración (puede cambiar a mitad de la canción)
+# Settings (can change mid-song)
 BPM=120
-KEYBOARD=SOFT_ACCORDEON
+KEYBOARD=SOFT_ACCORDION
 
-# Notas: TECLA;OCTAVA;DURACIÓN
-C;NATURAL;NEGRA
-E;NATURAL;NEGRA
-G;NATURAL;BLANCA
-C;MAJOR;REDONDA
-SILENCE;NATURAL;NEGRA
+# Notes: KEY;OCTAVE;DURATION
+C;NATURAL;QUARTER
+E;NATURAL;QUARTER
+G;NATURAL;HALF
+C;MAJOR;WHOLE
+SILENCE;NATURAL;QUARTER
 
-# La octava y la duración son opcionales (NATURAL y NEGRA por defecto)
+# Octave and duration are optional (NATURAL and QUARTER by default)
 A
 ```
 
-Luego reprodúcela:
+Then play it:
 
 ```java
 SoundEngine engine = new SoundEngine();
-engine.loadAndPlayKeysFromFile("mi_cancion.txt");
+engine.loadAndPlayKeysFromFile("my_song.txt");
 engine.shutdown();
 ```
 
-Si una línea tiene un error, el motor lo reporta con su número de línea, usa el valor por defecto y sigue tocando.
+If a line has an error, the engine reports it with its line number, falls back to the default value and keeps playing.
 
-### Referencia de valores
+### Value reference
 
 <table>
 <tr>
 <td valign="top">
 
-**🎹 Teclas (`Key`)**
+**🎹 Keys (`Key`)**
 
-| Tecla | Nota | Hz |
+| Key | Note | Hz |
 |---|---|---|
-| `C` | Do | 261.63 |
-| `C_SHARP` | Do# / Re♭ | 277.18 |
-| `D` | Re | 293.66 |
-| `D_SHARP` | Re# / Mi♭ | 311.13 |
-| `E` | Mi | 329.63 |
-| `F` | Fa | 349.23 |
-| `F_SHARP` | Fa# / Sol♭ | 369.99 |
-| `G` | Sol | 392.00 |
-| `G_SHARP` | Sol# / La♭ | 415.30 |
-| `A` | La | 440.00 |
-| `A_SHARP` | La# / Si♭ | 466.16 |
-| `B` | Si | 493.88 |
-| `SILENCE` | Silencio | 0 |
+| `C` | C4 (middle C) | 261.63 |
+| `C_SHARP` | C♯4 / D♭4 | 277.18 |
+| `D` | D4 | 293.66 |
+| `D_SHARP` | D♯4 / E♭4 | 311.13 |
+| `E` | E4 | 329.63 |
+| `F` | F4 | 349.23 |
+| `F_SHARP` | F♯4 / G♭4 | 369.99 |
+| `G` | G4 | 392.00 |
+| `G_SHARP` | G♯4 / A♭4 | 415.30 |
+| `A` | A4 | 440.00 |
+| `A_SHARP` | A♯4 / B♭4 | 466.16 |
+| `B` | B4 | 493.88 |
+| `SILENCE` | Rest | 0 |
 
 </td>
 <td valign="top">
 
-**⏱️ Duraciones (`KeyDuration`)**
+**⏱️ Durations (`KeyDuration`)**
 
-| Figura | Negras | ms a 120 BPM |
+| Value | Quarter notes | ms at 120 BPM |
 |---|---|---|
-| `REDONDA` | 4 | 2000 |
-| `BLANCA` | 2 | 1000 |
-| `NEGRA` | 1 | 500 |
-| `CORCHEA` | ½ | 250 |
-| `SEMICORCHEA` | ¼ | 125 |
+| `WHOLE` | 4 | 2000 |
+| `HALF` | 2 | 1000 |
+| `QUARTER` | 1 | 500 |
+| `EIGHTH` | ½ | 250 |
+| `SIXTEENTH` | ¼ | 125 |
 
-`ms = negras × 60000 / BPM`
+`ms = quarter notes × 60000 / BPM`
 
-**🎚️ Octavas (`Octaves`)**
+**🎚️ Octaves (`Octaves`)**
 
-| Valor | Desplazamiento |
+| Value | Shift |
 |---|---|
-| `MINOR` | una octava abajo (−12 semitonos) |
-| `NATURAL` | octava central (Do4 a Si4) |
-| `MAJOR` | una octava arriba (+12 semitonos) |
+| `MINOR` | one octave down (−12 semitones) |
+| `NATURAL` | middle octave (C4 to B4) |
+| `MAJOR` | one octave up (+12 semitones) |
 
-> Aquí `MINOR` y `MAJOR` indican octava más grave o más aguda, no tonalidad menor o mayor.
+> Here `MINOR` and `MAJOR` mean a lower or higher octave, not a minor or major key.
 
 **🎛️ Presets (`Keyboard`)**
 
-| Preset | Onda | Volumen |
+| Preset | Wave | Volume |
 |---|---|---|
-| `ORG_16_2` | Senoidal | 0.9 |
-| `SOFT_ACCORDEON` | Triangular | 0.8 |
+| `ORG_16_2` | Sine | 0.9 |
+| `SOFT_ACCORDION` | Triangle | 0.8 |
 
 </td>
 </tr>
@@ -145,64 +145,64 @@ Si una línea tiene un error, el motor lo reporta con su número de línea, usa 
 
 ---
 
-## 🎵 Canciones incluidas
+## 🎵 Included songs
 
-| Archivo | Canción | BPM | Preset |
+| File | Song | BPM | Preset |
 |---|---|---|---|
 | [`Teardrop.txt`](Teardrop.txt) | Teardrop (Massive Attack) | 134 | `ORG_16_2` |
-| [`MofL.txt`](MofL.txt) | Mystery of Love (Sufjan Stevens) | 132 | `SOFT_ACCORDEON` |
-| [`Air_PL.txt`](Air_PL.txt) | Highschool Lover (Air) | 143 | `SOFT_ACCORDEON` |
+| [`MofL.txt`](MofL.txt) | Mystery of Love (Sufjan Stevens) | 132 | `SOFT_ACCORDION` |
+| [`Air_PL.txt`](Air_PL.txt) | Highschool Lover (Air) | 143 | `SOFT_ACCORDION` |
 
 ---
 
-## 🧑‍💻 Uso desde código
+## 🧑‍💻 Using it from code
 
-También puedes tocar notas directamente, sin archivo:
+You can also play notes directly, without a file:
 
 ```java
 SoundEngine engine = new SoundEngine();
 
 engine.setBpm(110);
-engine.setKeyboard(Keyboard.SOFT_ACCORDEON);
+engine.setKeyboard(Keyboard.SOFT_ACCORDION);
 
-engine.playKey(Key.F_SHARP, Octaves.NATURAL, KeyDuration.CORCHEA);
-engine.playKey(Key.C_SHARP, Octaves.NATURAL);               // negra por defecto
-engine.playKey(Key.G_SHARP, Octaves.MINOR, KeyDuration.BLANCA);
+engine.playKey(Key.F_SHARP, Octaves.NATURAL, KeyDuration.EIGHTH);
+engine.playKey(Key.C_SHARP, Octaves.NATURAL);               // quarter note by default
+engine.playKey(Key.G_SHARP, Octaves.MINOR, KeyDuration.HALF);
 
-engine.shutdown(); // vacía el buffer y cierra la línea de audio
+engine.shutdown(); // drains the buffer and closes the audio line
 ```
 
 ---
 
-## ⚙️ Cómo funciona
+## ⚙️ How it works
 
 ```mermaid
 flowchart LR
-    A["📄 Partitura .txt"] --> B["Parser<br/>BPM · KEYBOARD · notas"]
-    B --> C["Key + Octaves<br/>→ frecuencia (Hz)"]
-    B --> D["KeyDuration + BPM<br/>→ milisegundos"]
-    C --> E["Waveform del preset<br/>(seno / triángulo)"]
+    A["📄 .txt score"] --> B["Parser<br/>BPM · KEYBOARD · notes"]
+    B --> C["Key + Octaves<br/>→ frequency (Hz)"]
+    B --> D["KeyDuration + BPM<br/>→ milliseconds"]
+    C --> E["Preset waveform<br/>(sine / triangle)"]
     D --> E
-    E --> F["Envolvente<br/>ataque y liberación de 20 ms"]
-    F --> G["PCM 8 bits<br/>44.1 kHz mono"]
+    E --> F["Envelope<br/>20 ms attack and release"]
+    F --> G["8-bit PCM<br/>44.1 kHz mono"]
     G --> H["🔊 SourceDataLine"]
 ```
 
-1. **Frecuencia:** cada `Key` guarda su frecuencia base y `Octaves` la multiplica por `2^(semitonos/12)`.
-2. **Duración:** `KeyDuration` convierte la figura a milisegundos según el BPM, y de ahí a número de muestras.
-3. **Síntesis:** para cada muestra, el `Waveform` del preset activo calcula la amplitud en el instante `t`.
-4. **Envolvente:** las amplitudes suben de 0 a 1 en los primeros 20 ms y bajan a 0 en los últimos 20 ms. Si la nota es más corta, se reparte a la mitad.
-5. **Salida:** el resultado se escala a un `byte` con signo y se escribe en una única `SourceDataLine` compartida.
+1. **Frequency:** each `Key` stores its base frequency and `Octaves` multiplies it by `2^(semitones/12)`.
+2. **Duration:** `KeyDuration` converts the note value to milliseconds based on the BPM, and from there to a number of samples.
+3. **Synthesis:** for each sample, the active preset's `Waveform` computes the amplitude at time `t`.
+4. **Envelope:** amplitudes rise from 0 to 1 over the first 20 ms and fall back to 0 over the last 20 ms. If the note is shorter, the envelope is split in half.
+5. **Output:** the result is scaled to a signed `byte` and written to a single shared `SourceDataLine`.
 
 <details>
-<summary><b>📐 Diagrama de clases</b></summary>
+<summary><b>📐 Class diagram</b></summary>
 
 ```mermaid
 classDiagram
     class AbstractSoundEngine {
         <<abstract>>
         #int bpm
-        #Keyboard keyboardActual
+        #Keyboard currentKeyboard
         +setBpm(int)
         +setKeyboard(Keyboard)
         +playKey(Key, Octaves, KeyDuration)*
@@ -222,7 +222,7 @@ classDiagram
     class Keyboard {
         <<enumeration>>
         ORG_16_2
-        SOFT_ACCORDEON
+        SOFT_ACCORDION
     }
     class Key {
         <<enumeration>>
@@ -253,40 +253,40 @@ classDiagram
 
 ---
 
-## 🧩 Agregar un nuevo timbre
+## 🧩 Adding a new tone
 
-Un preset es un nombre, un volumen y una función `(t, f) -> amplitud` que devuelve valores entre −1 y 1. Por ejemplo, para una onda cuadrada basta con añadir una entrada en [Keyboard.java](Keyboard.java):
+A preset is a name, a volume and a function `(t, f) -> amplitude` that returns values between −1 and 1. For example, a square wave only needs one new entry in [Keyboard.java](Keyboard.java):
 
 ```java
 SQUARE_LEAD("SQUARE_LEAD", 0.5,
         (t, f) -> Math.signum(Math.sin(2.0 * Math.PI * f * t))),
 ```
 
-Desde ese momento ya puedes usarlo en tus partituras con `KEYBOARD=SQUARE_LEAD`.
+From then on you can use it in your scores with `KEYBOARD=SQUARE_LEAD`.
 
 ---
 
-## 📁 Estructura del proyecto
+## 📁 Project structure
 
 ```
 Sound-Wrapper/
-├── AbstractSoundEngine.java   # Base del motor: BPM, preset y contrato de reproducción
-├── SoundEngine.java           # Implementación con javax.sound + parser de partituras
-├── Key.java                   # Las 12 notas de la octava central + silencio
-├── Octaves.java               # Desplazamiento de octava (−12 / 0 / +12 semitonos)
-├── KeyDuration.java           # Figuras rítmicas y conversión a milisegundos
-├── Keyboard.java              # Presets de teclado (forma de onda + volumen)
-├── Waveform.java              # Interfaz funcional para formas de onda
-├── KeyboardVariant.java       # Evalúa la onda del preset activo
-├── KeyboardDemo.java          # Punto de entrada: reproduce una canción
-├── TestSound.java             # Prueba mínima de audio (La 440 Hz)
-└── *.txt                      # Partituras de ejemplo
+├── AbstractSoundEngine.java   # Engine base: BPM, preset and playback contract
+├── SoundEngine.java           # javax.sound implementation + score parser
+├── Key.java                   # The 12 notes of the middle octave + rest
+├── Octaves.java               # Octave shift (−12 / 0 / +12 semitones)
+├── KeyDuration.java           # Note values and conversion to milliseconds
+├── Keyboard.java              # Keyboard presets (waveform + volume)
+├── Waveform.java              # Functional interface for waveforms
+├── KeyboardVariant.java       # Evaluates the active preset's waveform
+├── KeyboardDemo.java          # Entry point: plays a song
+├── TestSound.java             # Minimal audio test (A 440 Hz)
+└── *.txt                      # Example scores
 ```
 
 ---
 
 <div align="center">
 
-Hecho con ☕ y ondas senoidales.
+Made with ☕ and sine waves.
 
 </div>
