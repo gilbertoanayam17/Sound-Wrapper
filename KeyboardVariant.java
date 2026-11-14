@@ -1,8 +1,8 @@
-package proyecto;
+package project;
 
 /*
- Encapsula la lógica matemática para generar la forma de onda
- según el preset del teclado (Keyboard).
+ Wraps the math that generates the waveform
+ for the current keyboard preset (Keyboard).
  */
 public class KeyboardVariant {
 

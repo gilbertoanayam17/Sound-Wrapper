@@ -1,4 +1,4 @@
-package proyecto;
+package project;
 
 @FunctionalInterface
 public interface Waveform {

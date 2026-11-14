@@ -1,14 +1,14 @@
-package proyecto;
+package project;
 
 /*
- Presets del teclado (variante de sonido).
- Internamente se mapearán a distintas formas de onda.
+ Keyboard presets (sound variants).
+ Each one maps to a different waveform.
  */
 public enum Keyboard {
     ORG_16_2("16_2_ORG", 0.9,
 			(t, f) -> Math.sin(2.0 * Math.PI * f * t)),
 
-	SOFT_ACCORDEON("SOFT_ACCORDEON", 0.8, (t, f) -> {
+	SOFT_ACCORDION("SOFT_ACCORDION", 0.8, (t, f) -> {
 		double period = 1.0 / f;
 		double cycle = t % period;
 		return 2.0 * Math.abs(2.0 * cycle / period - 1.0) - 1.0;

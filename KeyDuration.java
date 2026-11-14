@@ -1,18 +1,18 @@
-package proyecto;
+package project;
 
 /*
- Tipo de figura rítmica.
- Se expresa en "número de negras" que dura cada figura.
+ Rhythmic note value.
+ Expressed as the number of quarter notes each value lasts.
  */
 public enum KeyDuration {
 
-	REDONDA(4.0), // 4 negras
-	BLANCA(2.0), // 2 negras
-	NEGRA(1.0), // 1 negra (pulso base del BPM)
-	CORCHEA(0.5), // media negra
-	SEMICORCHEA(0.25); // cuarto de negra
+	WHOLE(4.0), // 4 quarter notes
+	HALF(2.0), // 2 quarter notes
+	QUARTER(1.0), // 1 quarter note (the BPM base pulse)
+	EIGHTH(0.5), // half a quarter note
+	SIXTEENTH(0.25); // a quarter of a quarter note
 
-	// Cuántas negras dura esta figura.
+	// How many quarter notes this value lasts.
 	private final double beats;
 
 	KeyDuration(double beats) {
@@ -20,16 +20,16 @@ public enum KeyDuration {
 	}
 
 	
-	 //Convierte la figura a milisegundos, dada la velocidad en BPM. BPM se entiende como "negras por minuto".
+	 // Converts the note value to milliseconds at the given tempo. BPM means "quarter notes per minute".
 
 	public int toMilliseconds(int bpm) {
-		// Duración de una negra en milisegundos:
+		// Length of a quarter note in milliseconds:
 		// 60,000 ms (1 min) / BPM.
-		double negraMs = 60000.0 / bpm;
+		double quarterMs = 60000.0 / bpm;
 
-		double durationMs = beats * negraMs;
+		double durationMs = beats * quarterMs;
 
-		// Redondeamos al entero más cercano.
+		// Round to the nearest integer.
 		return (int) Math.round(durationMs);
 	}
 }

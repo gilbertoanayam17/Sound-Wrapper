@@ -1,22 +1,22 @@
-package proyecto;
+package project;
 
 /*
- Motor de sonido genérico. Define lo común: BPM, preset de teclado y la firma
- de las operaciones que cualquier implementación concreta debe ofrecer.
+ Generic sound engine. Defines the shared parts: BPM, keyboard preset and the
+ signature of the operations every concrete implementation must provide.
  */
 public abstract class AbstractSoundEngine {
 
-	// Tempo actual en BPM (negras por minuto).
-	protected int bpm = 120; // valor por defecto
+	// Current tempo in BPM (quarter notes per minute).
+	protected int bpm = 120; // default value
 
-	// Preset actual del teclado.
-	protected Keyboard keyboardActual = Keyboard.ORG_16_2;
+	// Current keyboard preset.
+	protected Keyboard currentKeyboard = Keyboard.ORG_16_2;
 
 	// --------- BPM ---------
 
 	public void setBpm(int bpm) {
 		if (bpm <= 0) {
-			System.out.println("BPM inválido, se mantiene " + this.bpm);
+			System.out.println("Invalid BPM, keeping " + this.bpm);
 			return;
 		}
 		this.bpm = bpm;
@@ -26,38 +26,38 @@ public abstract class AbstractSoundEngine {
 		return bpm;
 	}
 
-	// --------- Keyboard/preset del teclado ---------
+	// --------- Keyboard preset ---------
 
 	public void setKeyboard(Keyboard keyboard) {
 		if (keyboard == null) {
-			System.out.println("Keyboard nulo, se mantiene " + this.keyboardActual);
+			System.out.println("Null keyboard, keeping " + this.currentKeyboard);
 			return;
 		}
-		this.keyboardActual = keyboard;
+		this.currentKeyboard = keyboard;
 	}
 
 	public Keyboard getKeyboard() {
-		return keyboardActual;
+		return currentKeyboard;
 	}
 
-	// --------- Operaciones obligatorias ---------
+	// --------- Required operations ---------
 
 	/*
-	 Reproduce una tecla con una duración rítmica. Cada implementación concreta
-	 decide cómo generar el audio.
+	 Plays a key with a rhythmic duration. Each concrete implementation
+	 decides how to generate the audio.
 	 */
 	public abstract void playKey(Key key, Octaves octave, KeyDuration duration);
 
 	/*
-	 Versión comodín: negra por defecto. Se implementa aquí porque es lógica común
-	 a cualquier motor.
+	 Convenience overload: quarter note by default. Implemented here because the
+	 logic is shared by every engine.
 	 */
 	public void playKey(Key key, Octaves octave) {
-		playKey(key, octave, KeyDuration.NEGRA);
+		playKey(key, octave, KeyDuration.QUARTER);
 	}
 
 	/*
-	 Liberar recursos asociados al motor de sonido.
+	 Releases the resources held by the sound engine.
 	 */
 	public abstract void shutdown();
 }

@@ -1,6 +1,6 @@
-package proyecto;
+package project;
 
-//Octava de la tecla: natural, menor, mayor
+// Octave of the key: natural, one octave down (MINOR), one octave up (MAJOR)
 public enum Octaves {
 	NATURAL(0),
 	MINOR(-12), 

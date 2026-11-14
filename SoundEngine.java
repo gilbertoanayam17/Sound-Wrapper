@@ -1,4 +1,4 @@
-package proyecto;
+package project;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -8,14 +8,14 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-// Encargado de dar uso javax.sound.sampled y reproducir las teclas.
+// Uses javax.sound.sampled to play the keys.
 public class SoundEngine extends AbstractSoundEngine {
 
-	private static final double SAMPLE_RATE = 44100.0; // 44100 hz (muestras) por segundo, el estándar de audio
-	private static final int BITS_PER_SAMPLE = 8; // cada muestra se guarda en 8 bits
+	private static final double SAMPLE_RATE = 44100.0; // 44100 Hz (samples per second), the standard audio rate
+	private static final int BITS_PER_SAMPLE = 8; // each sample is stored in 8 bits
 	private static final int CHANNELS = 1; // 1 = mono
 
-	// Única línea de audio compartida para todas las teclas.
+	// Single audio line shared by all keys.
 	private SourceDataLine line;
 
 	public SoundEngine() {
@@ -25,11 +25,11 @@ public class SoundEngine extends AbstractSoundEngine {
 			line.open(format);
 			line.start();
 		} catch (LineUnavailableException e) {
-			System.out.println("No se pudo inicializar la línea de audio: " + e.getMessage());
+			System.out.println("Could not initialize the audio line: " + e.getMessage());
 		}
 	}
 
-	// Llamar al final para cerrar bien la línea.
+	// Call at the end to close the line properly.
 	@Override
 	public void shutdown() {
 		if (line != null) {
@@ -39,39 +39,39 @@ public class SoundEngine extends AbstractSoundEngine {
 		}
 	}
 
-	// --------- Keyboard/preset del teclado ---------
+	// --------- Keyboard preset ---------
 
 	public void setKeyboard(Keyboard keyboard) {
 		if (keyboard == null) {
-			System.out.println("Keyboard nulo, se mantiene " + this.keyboardActual);
+			System.out.println("Null keyboard, keeping " + this.currentKeyboard);
 			return;
 		}
-		this.keyboardActual = keyboard;
+		this.currentKeyboard = keyboard;
 	}
 
 	public Keyboard getKeyboard() {
-		return keyboardActual;
+		return currentKeyboard;
 	}
 
-	// --------- Reproducción de teclas ---------
+	// --------- Key playback ---------
 
-	// Versión con duración explícita en figura rítmica.
+	// Overload with an explicit rhythmic duration.
 	@Override
 	public void playKey(Key key, Octaves octave, KeyDuration keyDuration) {
 		int durationMs = keyDuration.toMilliseconds(bpm);
 		playKeyInternal(key, octave, durationMs);
 	}
 
-	// Versión comodín: negra por defecto.
+	// Convenience overload: quarter note by default.
 	public void playKey(Key key, Octaves octave) {
-		playKey(key, octave, KeyDuration.NEGRA);
+		playKey(key, octave, KeyDuration.QUARTER);
 	}
 
-	// Lógica interna: generar samples con envolvente con preset de teclado.
+	// Internal logic: generate samples with an envelope using the keyboard preset.
 	private void playKeyInternal(Key key, Octaves octave, int durationMs) {
 
 		if (line == null) {
-			System.out.println("Línea de audio no inicializada.");
+			System.out.println("Audio line not initialized.");
 			return;
 		}
 
@@ -82,33 +82,33 @@ public class SoundEngine extends AbstractSoundEngine {
 
 		byte[] buffer = new byte[totalSamples];
 
-		double frequency = key.getFrequency(octave); // Pide a la Key su frecuencia ajustada a esa Octaves, octaves hace
-														// el desplazamiento de semitonos
+		double frequency = key.getFrequency(octave); // Ask the Key for its frequency in that octave; Octaves applies
+														// the semitone shift
 
-		// Si es silencio (frecuencia <= 0), solo escribimos ceros.
+		// For silence (frequency <= 0), just write zeros.
 		if (frequency <= 0) {
 			line.write(buffer, 0, buffer.length);
 			return;
 		}
 
-		// ataque y liberación de aprox 20 ms para disimular corte entre notas
+		// ~20 ms attack and release to smooth the cut between notes
 
 		int attackSamples = (int) (SAMPLE_RATE * 0.020); // 20 ms
 		int releaseSamples = (int) (SAMPLE_RATE * 0.020); // 20 ms
 
 		if (attackSamples + releaseSamples > totalSamples) {
-			int half = totalSamples / 2; // por si la nota es tan cortita que no caben 20ms inicio y fin, mitad
+			int half = totalSamples / 2; // if the note is too short to fit 20 ms at each end, split it in half
 			attackSamples = half;
 			releaseSamples = totalSamples - half;
 		}
 
-		for (int i = 0; i < totalSamples; i++) { // recorrer cada muestra.
+		for (int i = 0; i < totalSamples; i++) { // iterate over every sample.
 			double time = i / SAMPLE_RATE;
 
-			// Forma de onda según el preset del teclado
-			double waveValue = KeyboardVariant.generateValue(time, frequency, keyboardActual);
+			// Waveform for the keyboard preset
+			double waveValue = KeyboardVariant.generateValue(time, frequency, currentKeyboard);
 
-			// Envolvente (fade in / fade out)
+			// Envelope (fade in / fade out)
 			double envelope = 1.0;
 
 			if (i < attackSamples) {
@@ -119,7 +119,7 @@ public class SoundEngine extends AbstractSoundEngine {
 
 			waveValue *= envelope;
 
-			int sample = (int) (waveValue * 127.0 * keyboardActual.getVolume());
+			int sample = (int) (waveValue * 127.0 * currentKeyboard.getVolume());
 			buffer[i] = (byte) sample;
 		}
 
@@ -127,20 +127,20 @@ public class SoundEngine extends AbstractSoundEngine {
 	}
 
 	/*
-	 Lee un archivo de texto y reproduce las teclas descritas línea por línea.
+	 Reads a text file and plays the keys it describes, line by line.
 	 
-	 Tipos de línea soportados:
+	 Supported line types:
 	 
-	 1) Comentarios o vacías -> se ignoran # Esto es un comentario
+	 1) Comments or blank lines -> ignored # This is a comment
 	 
-	 2) Configuración de BPM: BPM=120
+	 2) BPM setting: BPM=120
 	 
-	 3) Configuración de preset de teclado (usa nombres del enum Keyboard):
-	 KEYBOARD=ORG_16_2 KEYBOARD=SOFT_ACCORDEON
+	 3) Keyboard preset setting (uses Keyboard enum names):
+	 KEYBOARD=ORG_16_2 KEYBOARD=SOFT_ACCORDION
 	 
-	 4) Notas: KEY;OCTAVE;DURATION Ejemplos: C;NATURAL;NEGRA D_SHARP;MAJOR;CORCHEA F;MINOR;BLANCA
+	 4) Notes: KEY;OCTAVE;DURATION Examples: C;NATURAL;QUARTER D_SHARP;MAJOR;EIGHTH F;MINOR;HALF
 	 
-	 Octava por defecto: NATURAL Duración por defecto: NEGRA
+	 Default octave: NATURAL Default duration: QUARTER
 	 */
 	public void loadAndPlayKeysFromFile(String filePath) {
 	    BufferedReader reader = null;
@@ -154,12 +154,12 @@ public class SoundEngine extends AbstractSoundEngine {
 	            lineNumber++;
 	            currentLine = currentLine.trim();
 
-	            // Ignorar vacías o comentarios
+	            // Skip blank lines and comments
 	            if (currentLine.isEmpty() || currentLine.startsWith("#")) {
 	                continue;
 	            }
 
-	            // ---------- Líneas de control: BPM ----------
+	            // ---------- Control lines: BPM ----------
 	            String upper = currentLine.toUpperCase();
 
 	            if (upper.startsWith("BPM=")) {
@@ -167,87 +167,87 @@ public class SoundEngine extends AbstractSoundEngine {
 	                try {
 	                    int newBpm = Integer.parseInt(bpmText);
 	                    setBpm(newBpm);
-	                    System.out.println("Línea " + lineNumber + ": BPM establecido a " + newBpm);
+	                    System.out.println("Line " + lineNumber + ": BPM set to " + newBpm);
 	                } catch (NumberFormatException e) {
-	                    System.out.println("Línea " + lineNumber + ": BPM inválido '" + bpmText
-	                            + "'. Se mantiene " + getBpm());
+	                    System.out.println("Line " + lineNumber + ": invalid BPM '" + bpmText
+	                            + "'. Keeping " + getBpm());
 	                }
-	                continue; // pasamos a la siguiente línea
+	                continue; // move on to the next line
 	            }
 
-	            // ---------- Líneas de control: KEYBOARD ----------
+	            // ---------- Control lines: KEYBOARD ----------
 	            if (upper.startsWith("KEYBOARD=")) {
 	                String kbText = currentLine.substring("KEYBOARD=".length()).trim();
 	                try {
 	                    Keyboard kb = Keyboard.valueOf(kbText.toUpperCase());
 	                    setKeyboard(kb);
-	                    System.out.println("Línea " + lineNumber + ": teclado establecido a " + kb);
+	                    System.out.println("Line " + lineNumber + ": keyboard set to " + kb);
 	                } catch (IllegalArgumentException e) {
-	                    System.out.println("Línea " + lineNumber + ": teclado inválido '" + kbText
-	                            + "'. Se mantiene " + getKeyboard());
+	                    System.out.println("Line " + lineNumber + ": invalid keyboard '" + kbText
+	                            + "'. Keeping " + getKeyboard());
 	                }
-	                continue; // pasamos a la siguiente línea
+	                continue; // move on to the next line
 	            }
 
-	            // ---------- Líneas de notas: KEY;OCTAVE;DURATION ----------
+	            // ---------- Note lines: KEY;OCTAVE;DURATION ----------
 	            String[] parts = currentLine.split(";");
 	            if (parts.length == 0) {
 	                continue;
 	            }
 
-	            // Valores por defecto
+	            // Default values
 	            Key key;
 	            Octaves octave = Octaves.NATURAL;
-	            KeyDuration duration = KeyDuration.NEGRA;
+	            KeyDuration duration = KeyDuration.QUARTER;
 
-	            // ---- Parseo de Key ----
+	            // ---- Parse Key ----
 	            try {
 	                String keyText = parts[0].trim().toUpperCase();
 	                key = Key.valueOf(keyText);
 	            } catch (IllegalArgumentException e) {
-	                System.out.println("Línea " + lineNumber + ": tecla inválida -> " + currentLine);
-	                continue; // pasamos a la siguiente línea
+	                System.out.println("Line " + lineNumber + ": invalid key -> " + currentLine);
+	                continue; // move on to the next line
 	            }
 
-	            // ---- Parseo de Octaves (si viene) ----
+	            // ---- Parse Octaves (if present) ----
 	            if (parts.length >= 2) {
 	                String octaveText = parts[1].trim();
 	                if (!octaveText.isEmpty()) {
 	                    try {
 	                        octave = Octaves.valueOf(octaveText.toUpperCase());
 	                    } catch (IllegalArgumentException e) {
-	                        System.out.println("Línea " + lineNumber + ": octava inválida '" + octaveText
-	                                + "', se usa NATURAL.");
+	                        System.out.println("Line " + lineNumber + ": invalid octave '" + octaveText
+	                                + "', using NATURAL.");
 	                    }
 	                }
 	            }
 
-	            // ---- Parseo de KeyDuration (si viene) ----
+	            // ---- Parse KeyDuration (if present) ----
 	            if (parts.length >= 3) {
 	                String durationText = parts[2].trim();
 	                if (!durationText.isEmpty()) {
 	                    try {
 	                        duration = KeyDuration.valueOf(durationText.toUpperCase());
 	                    } catch (IllegalArgumentException e) {
-	                        System.out.println("Línea " + lineNumber + ": duración inválida '" + durationText
-	                                + "', se usa NEGRA.");
+	                        System.out.println("Line " + lineNumber + ": invalid duration '" + durationText
+	                                + "', using QUARTER.");
 	                    }
 	                }
 	            }
 
-	            // ---------- Log bonito de lo que se va a tocar ----------
+	            // ---------- Log what is about to play ----------
 	            System.out.println(
-	                "Línea " + lineNumber + ": nota "
+	                "Line " + lineNumber + ": note "
 	                + key + ";" + octave + ";" + duration
-	                + " (BPM=" + getBpm() + ", teclado=" + getKeyboard() + ")"
+	                + " (BPM=" + getBpm() + ", keyboard=" + getKeyboard() + ")"
 	            );
 
-	            // Finalmente, reproducimos la tecla leída
+	            // Finally, play the key that was read
 	            playKey(key, octave, duration);
 	        }
 
 	    } catch (IOException e) {
-	        System.out.println("Error al leer el archivo de teclas '" + filePath + "': " + e.getMessage());
+	        System.out.println("Error reading key file '" + filePath + "': " + e.getMessage());
 	    }
 	}
 

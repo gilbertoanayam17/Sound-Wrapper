@@ -1,4 +1,4 @@
-package proyecto;
+package project;
 
 import javax.sound.sampled.AudioFormat;
 
